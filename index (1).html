@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formation IA Générative - Lagardère</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .animate-spin { animation: spin 1s linear infinite; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <script type="text/babel">
+    const { useState } = React;
+
+    const LagardereQuestionnaire = () => {
+      const [currentQuestion, setCurrentQuestion] = useState(0);
+      const [isSubmitting, setIsSubmitting] = useState(false);
+      const [isSubmitted, setIsSubmitted] = useState(false);
+      const [formData, setFormData] = useState({
+        prenom: '',
+        nom: '',
+        email: '',
+        departement: '',
+        niveauIA: '',
+        outilsUtilises: [],
+        frequenceUtilisation: '',
+        casUsageActuels: '',
+        questionsFormation: '',
+        pointsBloquants: '',
+        attentesFormation: [],
+        casUsageSouhaites: ''
+      });
+
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzt9h5Q8HVHCTBzB1FbZnfcJ8vyZkdTD-DuGeFKKD7ChOW8tY39CsGLaPwlhqO6OuS1/exec';
+
+      const handleInputChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+      };
+
+      const handleCheckboxChange = (field, value) => {
+        setFormData(prev => {
+          const current = prev[field];
+          if (current.includes(value)) {
+            return { ...prev, [field]: current.filter(v => v !== value) };
+          } else {
+            return { ...prev, [field]: [...current, value] };
+          }
+        });
+      };
+
+      const handleSubmit = async () => {
+        setIsSubmitting(true);
+        try {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...formData,
+              outilsUtilises: formData.outilsUtilises.join(', '),
+              attentesFormation: formData.attentesFormation.join(', '),
+              timestamp: new Date().toISOString()
+            })
+          });
+          await new Promise(resolve => setTimeout(resolve, 1200));
+          setIsSubmitted(true);
+        } catch (error) {
+          console.error('Erreur:', error);
+          setIsSubmitted(true);
+        }
+        setIsSubmitting(false);
+      };
+
+      const questions = [
+        { id: 'intro', type: 'intro' },
+        {
+          id: 'prenom',
+          type: 'text',
+          field: 'prenom',
+          question: 'Quel est votre prénom ?',
+          placeholder: 'Entrez votre prénom',
+          required: true
+        },
+        {
+          id: 'nom',
+          type: 'text',
+          field: 'nom',
+          question: 'Et votre nom ?',
+          placeholder: 'Entrez votre nom',
+          required: true
+        },
+        {
+          id: 'email',
+          type: 'email',
+          field: 'email',
+          question: 'Votre email professionnel ?',
+          placeholder: 'prenom.nom@lagardere.com',
+          required: true
+        },
+        {
+          id: 'departement',
+          type: 'text',
+          field: 'departement',
+          question: 'Dans quel département travaillez-vous ?',
+          placeholder: 'Ex: Lagardère Publishing, Marketing, RH...',
+          required: true
+        },
+        {
+          id: 'niveauIA',
+          type: 'single',
+          field: 'niveauIA',
+          question: "Quel est votre niveau avec l'IA générative ?",
+          options: [
+            { value: 'debutant', label: 'Débutant', desc: 'Je découvre tout juste' },
+            { value: 'curieux', label: 'Curieux', desc: "J'ai testé quelques fois" },
+            { value: 'regulier', label: 'Utilisateur régulier', desc: "Je l'utilise chaque semaine" },
+            { value: 'avance', label: 'Avancé', desc: 'Je maîtrise plusieurs outils' }
+          ],
+          required: true
+        },
+        {
+          id: 'outilsUtilises',
+          type: 'multiple',
+          field: 'outilsUtilises',
+          question: 'Quels outils avez-vous déjà utilisés ?',
+          subtitle: "Sélectionnez tous ceux qui s'appliquent",
+          options: ['ChatGPT', 'Claude', 'Copilot', 'Gemini', 'Mistral', 'Perplexity', 'Autre', 'Aucun'],
+          required: false
+        },
+        {
+          id: 'frequenceUtilisation',
+          type: 'single',
+          field: 'frequenceUtilisation',
+          question: "À quelle fréquence utilisez-vous l'IA ?",
+          options: [
+            { value: 'jamais', label: 'Jamais' },
+            { value: 'rarement', label: 'Quelques fois par mois' },
+            { value: 'regulierement', label: 'Plusieurs fois par semaine' },
+            { value: 'quotidien', label: 'Tous les jours' }
+          ],
+          required: true
+        },
+        {
+          id: 'casUsageActuels',
+          type: 'textarea',
+          field: 'casUsageActuels',
+          question: "Comment utilisez-vous l'IA aujourd'hui ?",
+          subtitle: 'Décrivez vos usages actuels, même basiques',
+          placeholder: 'Ex: Je pose des questions, je fais relire mes emails, je génère des idées...',
+          required: false
+        },
+        {
+          id: 'questionsFormation',
+          type: 'textarea',
+          field: 'questionsFormation',
+          question: "Quelles questions vous posez-vous sur l'IA ?",
+          subtitle: 'Vos interrogations, doutes, curiosités...',
+          placeholder: "Ex: Comment bien formuler mes demandes ? Est-ce fiable ? Puis-je l'utiliser pour des données sensibles ?",
+          required: false
+        },
+        {
+          id: 'pointsBloquants',
+          type: 'textarea',
+          field: 'pointsBloquants',
+          question: 'Quels sont vos points bloquants actuels ?',
+          subtitle: 'Ce qui vous freine ou vous pose problème',
+          placeholder: 'Ex: Je ne sais pas par où commencer, les résultats ne sont pas satisfaisants, je manque de temps...',
+          required: false
+        },
+        {
+          id: 'attentesFormation',
+          type: 'multiple',
+          field: 'attentesFormation',
+          question: "Qu'attendez-vous de cette formation ?",
+          subtitle: 'Sélectionnez vos priorités',
+          options: [
+            "Comprendre les bases de l'IA générative",
+            'Apprendre à rédiger de bons prompts',
+            "Découvrir des cas d'usage concrets",
+            'Gagner du temps au quotidien',
+            'Comprendre les limites et risques',
+            'Découvrir de nouveaux outils'
+          ],
+          required: true
+        },
+        {
+          id: 'casUsageSouhaites',
+          type: 'textarea',
+          field: 'casUsageSouhaites',
+          question: "Quels cas d'usage aimeriez-vous explorer ?",
+          subtitle: "Les tâches où l'IA pourrait vous aider",
+          placeholder: 'Ex: Rédiger des emails, synthétiser des documents, préparer des réunions, créer des présentations...',
+          required: false
+        }
+      ];
+
+      const canProceed = () => {
+        const q = questions[currentQuestion];
+        if (q.type === 'intro') return true;
+        if (!q.required) return true;
+        
+        const value = formData[q.field];
+        if (q.type === 'multiple') return value.length > 0;
+        return value && value.trim() !== '';
+      };
+
+      const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && canProceed() && currentQuestion < questions.length - 1) {
+          e.preventDefault();
+          setCurrentQuestion(prev => prev + 1);
+        }
+      };
+
+      const progress = ((currentQuestion) / (questions.length - 1)) * 100;
+
+      if (isSubmitted) {
+        return (
+          <div className="min-h-screen bg-white flex items-center justify-center p-6">
+            <div className="max-w-md text-center">
+              <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-3">Merci {formData.prenom} !</h2>
+              <p className="text-gray-500 leading-relaxed">
+                Vos réponses ont bien été enregistrées. Elles nous aideront à personnaliser la formation pour qu'elle réponde au mieux à vos besoins.
+              </p>
+              <p className="text-sm text-gray-400 mt-6">
+                À très bientôt pour la formation !
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      const renderQuestion = () => {
+        const q = questions[currentQuestion];
+
+        if (q.type === 'intro') {
+          return (
+            <div className="text-center max-w-xl mx-auto">
+              <div className="mb-8">
+                <span className="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 text-sm font-medium rounded-full mb-6">
+                  Programme Ambassadeurs IA
+                </span>
+                <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4 leading-tight">
+                  Préparez votre formation<br />IA Générative
+                </h1>
+                <p className="text-lg text-gray-500 leading-relaxed">
+                  Quelques questions pour personnaliser la formation selon vos besoins et votre niveau.
+                </p>
+              </div>
+              <p className="text-sm text-gray-400 mb-8">
+                ⏱ Environ 3 minutes
+              </p>
+            </div>
+          );
+        }
+
+        if (q.type === 'text' || q.type === 'email') {
+          return (
+            <div className="max-w-xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">{q.question}</h2>
+              {q.subtitle && <p className="text-gray-400 mb-6">{q.subtitle}</p>}
+              <input
+                type={q.type}
+                value={formData[q.field]}
+                onChange={(e) => handleInputChange(q.field, e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="w-full text-xl md:text-2xl py-3 border-b-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors bg-transparent placeholder-gray-300"
+                placeholder={q.placeholder}
+                autoFocus
+              />
+              <p className="text-sm text-gray-400 mt-4">
+                Appuyez sur <span className="px-2 py-0.5 bg-gray-100 rounded text-gray-500 font-medium">Entrée ↵</span> pour continuer
+              </p>
+            </div>
+          );
+        }
+
+        if (q.type === 'textarea') {
+          return (
+            <div className="max-w-xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">{q.question}</h2>
+              {q.subtitle && <p className="text-gray-400 mb-6">{q.subtitle}</p>}
+              <textarea
+                value={formData[q.field]}
+                onChange={(e) => handleInputChange(q.field, e.target.value)}
+                className="w-full text-lg p-4 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all resize-none bg-gray-50"
+                placeholder={q.placeholder}
+                rows={4}
+                autoFocus
+              />
+            </div>
+          );
+        }
+
+        if (q.type === 'single') {
+          return (
+            <div className="max-w-xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">{q.question}</h2>
+              {q.subtitle && <p className="text-gray-400 mb-6">{q.subtitle}</p>}
+              <div className="space-y-3 mt-6">
+                {q.options.map((option, index) => {
+                  const value = typeof option === 'string' ? option : option.value;
+                  const label = typeof option === 'string' ? option : option.label;
+                  const desc = typeof option === 'object' ? option.desc : null;
+                  const isSelected = formData[q.field] === value;
+                  const letter = String.fromCharCode(65 + index);
+                  
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => {
+                        handleInputChange(q.field, value);
+                        setTimeout(() => {
+                          if (currentQuestion < questions.length - 1) {
+                            setCurrentQuestion(prev => prev + 1);
+                          }
+                        }, 300);
+                      }}
+                      className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium ${
+                        isSelected ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        {letter}
+                      </span>
+                      <div>
+                        <span className={`font-medium ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
+                          {label}
+                        </span>
+                        {desc && <p className="text-sm text-gray-400 mt-0.5">{desc}</p>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+
+        if (q.type === 'multiple') {
+          return (
+            <div className="max-w-xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">{q.question}</h2>
+              {q.subtitle && <p className="text-gray-400 mb-6">{q.subtitle}</p>}
+              <div className="flex flex-wrap gap-2 mt-6">
+                {q.options.map((option) => {
+                  const isSelected = formData[q.field].includes(option);
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => handleCheckboxChange(q.field, option)}
+                      className={`px-4 py-2.5 rounded-full border-2 font-medium transition-all ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 text-blue-600'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {isSelected && <span className="mr-1.5">✓</span>}
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-white flex flex-col">
+          {/* Progress bar */}
+          <div className="fixed top-0 left-0 right-0 h-1 bg-gray-100 z-50">
+            <div 
+              className="h-full bg-blue-500 transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">Lagardère × Mister IA</span>
+            <span className="text-sm text-gray-400">
+              {currentQuestion > 0 && `${currentQuestion} / ${questions.length - 1}`}
+            </span>
+          </div>
+
+          {/* Question */}
+          <div className="flex-1 flex items-center justify-center px-6 py-12">
+            {renderQuestion()}
+          </div>
+
+          {/* Navigation */}
+          <div className="px-6 py-4 border-t border-gray-100">
+            <div className="max-w-xl mx-auto flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setCurrentQuestion(prev => prev - 1)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors ${
+                  currentQuestion === 0 ? 'invisible' : ''
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Retour
+              </button>
+
+              {currentQuestion < questions.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setCurrentQuestion(prev => prev + 1)}
+                  disabled={!canProceed()}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
+                    canProceed()
+                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {currentQuestion === 0 ? 'Commencer' : 'Continuer'}
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={!canProceed() || isSubmitting}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
+                    canProceed() && !isSubmitting
+                      ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Envoi...
+                    </>
+                  ) : (
+                    <>
+                      Envoyer
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('app')).render(<LagardereQuestionnaire />);
+  </script>
+</body>
+</html>
