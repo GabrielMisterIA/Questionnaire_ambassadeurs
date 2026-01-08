@@ -45,20 +45,24 @@
     }
     
     .header {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 16px 24px;
+      justify-content: center;
+      padding: 24px;
       border-bottom: 1px solid #f3f4f6;
     }
     
-    .header-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: #4b5563;
+    .header-logo {
+      height: 48px;
+      width: auto;
     }
     
     .header-count {
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
       font-size: 14px;
       color: #9ca3af;
     }
@@ -561,10 +565,7 @@
           </div>
           
           <div class="header">
-            <div style="display: flex; align-items: center; gap: 16px;">
-              <img src="logo.png" alt="Lagardère" class="header-logo">
-              <span class="header-title">× Mister IA</span>
-            </div>
+            <img src="logo.png" alt="Lagardère" class="header-logo">
             <span class="header-count">${state.currentQuestion > 0 ? `${state.currentQuestion} / ${questions.length - 1}` : ''}</span>
           </div>
           
