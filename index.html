@@ -35,8 +35,13 @@
     
     .progress-fill {
       height: 100%;
-      background: #3b82f6;
+      background: #00205B;
       transition: width 0.5s ease-out;
+    }
+    
+    .header-logo {
+      height: 32px;
+      width: auto;
     }
     
     .header {
@@ -79,8 +84,8 @@
     .badge {
       display: inline-block;
       padding: 6px 16px;
-      background: #eff6ff;
-      color: #2563eb;
+      background: #E8EDF5;
+      color: #00205B;
       font-size: 14px;
       font-weight: 500;
       border-radius: 9999px;
@@ -131,7 +136,7 @@
     }
     
     .text-input:focus {
-      border-bottom-color: #3b82f6;
+      border-bottom-color: #00205B;
     }
     
     .text-input::placeholder {
@@ -166,8 +171,8 @@
     }
     
     .textarea:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #00205B;
+      box-shadow: 0 0 0 3px rgba(0, 32, 91, 0.1);
     }
     
     .textarea::placeholder {
@@ -201,8 +206,8 @@
     }
     
     .option-btn.selected {
-      border-color: #3b82f6;
-      background: #eff6ff;
+      border-color: #00205B;
+      background: #E8EDF5;
     }
     
     .option-letter {
@@ -220,7 +225,7 @@
     }
     
     .option-btn.selected .option-letter {
-      background: #3b82f6;
+      background: #00205B;
       color: white;
     }
     
@@ -234,7 +239,7 @@
     }
     
     .option-btn.selected .option-label {
-      color: #1d4ed8;
+      color: #00205B;
     }
     
     .option-desc {
@@ -268,9 +273,9 @@
     }
     
     .tag-btn.selected {
-      border-color: #3b82f6;
-      background: #eff6ff;
-      color: #2563eb;
+      border-color: #00205B;
+      background: #E8EDF5;
+      color: #00205B;
     }
     
     .nav {
@@ -309,12 +314,12 @@
     }
     
     .btn-next {
-      background: #3b82f6;
+      background: #00205B;
       color: white;
     }
     
     .btn-next:hover {
-      background: #2563eb;
+      background: #001845;
     }
     
     .btn-next:disabled {
@@ -556,7 +561,10 @@
           </div>
           
           <div class="header">
-            <span class="header-title">Lagardère × Mister IA</span>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <img src="logo.png" alt="Lagardère" class="header-logo">
+              <span class="header-title">× Mister IA</span>
+            </div>
             <span class="header-count">${state.currentQuestion > 0 ? `${state.currentQuestion} / ${questions.length - 1}` : ''}</span>
           </div>
           
@@ -701,5 +709,3 @@
   </script>
 </body>
 </html>
-
-
