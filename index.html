@@ -48,23 +48,20 @@
       position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 24px;
+      justify-content: flex-end;
+      padding: 16px 24px;
       border-bottom: 1px solid #f3f4f6;
     }
     
-    .header-logo {
-      height: 48px;
-      width: auto;
-    }
-    
     .header-count {
-      position: absolute;
-      right: 24px;
-      top: 50%;
-      transform: translateY(-50%);
       font-size: 14px;
       color: #9ca3af;
+    }
+    
+    .intro-logo {
+      height: 80px;
+      width: auto;
+      margin-bottom: 32px;
     }
     
     .main {
@@ -489,6 +486,7 @@
       if (q.type === 'intro') {
         questionHTML = `
           <div class="intro">
+            <img src="logo.png" alt="Lagardère" class="intro-logo">
             <span class="badge">Programme Ambassadeurs IA</span>
             <h1>Préparez votre formation<br>IA Générative</h1>
             <p>Quelques questions pour personnaliser la formation selon vos besoins et votre niveau.</p>
@@ -565,7 +563,6 @@
           </div>
           
           <div class="header">
-            <img src="logo.png" alt="Lagardère" class="header-logo">
             <span class="header-count">${state.currentQuestion > 0 ? `${state.currentQuestion} / ${questions.length - 1}` : ''}</span>
           </div>
           
